@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-// Maps escalation level to display config
 const ESCALATION_CONFIG = {
   urgent_refer: {
     tag:       '🔴 Urgent — Seek Screening Now',
@@ -26,11 +25,11 @@ const ESCALATION_CONFIG = {
 }
 
 const CANCER_LABELS = {
-  oral:      'Oral / Mouth Cancer',
-  cervical:  'Cervical Cancer',
-  breast:    'Breast Cancer',
-  colorectal:'Colorectal Cancer',
-  lung:      'Lung Cancer',
+  oral:       'Oral / Mouth Cancer',
+  cervical:   'Cervical Cancer',
+  breast:     'Breast Cancer',
+  colorectal: 'Colorectal Cancer',
+  lung:       'Lung Cancer',
 }
 
 // ── Animated score ring ──────────────────────────────────
@@ -41,19 +40,15 @@ function ScoreRing({ score, colorClass }) {
   const offset = circ - (displayScore / 100) * circ
 
   useEffect(() => {
-    // Animate score counting up
     let start = null
     const duration = 1000
-    const target = score
-
     function step(ts) {
       if (!start) start = ts
       const progress = Math.min((ts - start) / duration, 1)
-      const eased    = 1 - Math.pow(1 - progress, 3) // ease-out cubic
-      setDisplayScore(Math.round(eased * target))
+      const eased    = 1 - Math.pow(1 - progress, 3)
+      setDisplayScore(Math.round(eased * score))
       if (progress < 1) requestAnimationFrame(step)
     }
-
     requestAnimationFrame(step)
   }, [score])
 
@@ -77,9 +72,7 @@ function ScoreRing({ score, colorClass }) {
 
 // ── Single cancer result card ────────────────────────────
 function ResultCard({ result }) {
-  const topEscalation = result.escalation_level
-  const cfg           = ESCALATION_CONFIG[topEscalation] || ESCALATION_CONFIG.monitor
-
+  const cfg = ESCALATION_CONFIG[result.escalation_level] || ESCALATION_CONFIG.monitor
   return (
     <div className={`escalation-banner ${cfg.className}`}>
       <div className={`escalation-level-tag ${cfg.className}`}>
@@ -105,49 +98,12 @@ function ResultCard({ result }) {
   )
 }
 
-// ── Trend Alert Banner ───────────────────────────────────
-function TrendAlert({ trend }) {
-  const isHigh = trend.severity === 'high'
-  return (
-    <div style={{
-      background: isHigh ? '#FFF0EE' : '#FFF9EC',
-      border: `1.5px solid ${isHigh ? '#FCCFCF' : '#FFE0A3'}`,
-      borderLeft: `4px solid ${isHigh ? '#BA1A1A' : '#C46200'}`,
-      borderRadius: '10px',
-      padding: '13px 16px',
-      marginBottom: '10px',
-      display: 'flex',
-      gap: '10px',
-      alignItems: 'flex-start',
-      animation: 'slideIn 0.3s ease',
-    }}>
-      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>
-        {isHigh ? '⚠️' : '📈'}
-      </span>
-      <div>
-        <div style={{
-          fontSize: '12px', fontWeight: 700,
-          color: isHigh ? '#BA1A1A' : '#C46200',
-          letterSpacing: '0.04em', textTransform: 'uppercase',
-          marginBottom: '3px',
-        }}>
-          {isHigh ? 'Trend Warning' : 'Change Detected'}
-        </div>
-        <div style={{ fontSize: '13px', color: 'var(--text-mid)', lineHeight: 1.5 }}>
-          {trend.message}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ── Main Results Screen ──────────────────────────────────
-export default function ResultsScreen({ results, trends = [], onReset, onViewHistory }) {
+export default function ResultsScreen({ results, onReset }) {
   if (!results) return null
 
   const { results: cancerResults, any_red_flag, user_profile } = results
 
-  // No symptoms matched any rule
   if (!cancerResults || cancerResults.length === 0) {
     return (
       <div className="fade-in">
@@ -172,7 +128,6 @@ export default function ResultsScreen({ results, trends = [], onReset, onViewHis
     )
   }
 
-  // Determine overall highest escalation for hero display
   const overallEscalation =
     cancerResults.find(r => r.escalation_level === 'urgent_refer')?.escalation_level ||
     cancerResults.find(r => r.escalation_level === 'consult')?.escalation_level ||
@@ -187,21 +142,7 @@ export default function ResultsScreen({ results, trends = [], onReset, onViewHis
 
   return (
     <div className="fade-in">
-      {/* Trend alerts — only shown from second session onwards */}
-      {trends.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{
-            fontSize: '11px', fontWeight: 700,
-            color: 'var(--text-muted)', letterSpacing: '0.06em',
-            textTransform: 'uppercase', marginBottom: '10px',
-          }}>
-            ⟳ Compared to your last assessment
-          </div>
-          {trends.map((t, i) => <TrendAlert key={i} trend={t} />)}
-        </div>
-      )}
-
-      {/* Hero section with score ring */}
+      {/* Hero with score ring */}
       <div className="results-hero">
         <ScoreRing score={overallScore} colorClass={heroConfig.scoreColor} />
         <h2 className="results-hero-title">{heroConfig.title}</h2>
@@ -231,7 +172,7 @@ export default function ResultsScreen({ results, trends = [], onReset, onViewHis
         )}
       </div>
 
-      {/* Individual cancer result cards */}
+      {/* Cancer result cards */}
       {cancerResults.map((result, i) => (
         <ResultCard key={i} result={result} />
       ))}
@@ -254,17 +195,13 @@ export default function ResultsScreen({ results, trends = [], onReset, onViewHis
               borderBottom: '1px solid var(--border-light)',
             }}>
               <div style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                color: 'var(--text-mid)',
-                marginBottom: '4px',
+                fontSize: '13px', fontWeight: 600,
+                color: 'var(--text-mid)', marginBottom: '4px',
               }}>
                 {rule.symptom_display_label}
               </div>
               <div style={{
-                fontSize: '13px',
-                color: 'var(--text-muted)',
-                lineHeight: 1.6,
+                fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6,
               }}>
                 {rule.plain_language_reason}
               </div>
@@ -284,9 +221,6 @@ export default function ResultsScreen({ results, trends = [], onReset, onViewHis
 
       {/* Actions */}
       <div className="nav-row">
-        <button className="btn btn-secondary" onClick={onViewHistory}>
-          📋 View History
-        </button>
         <button className="btn btn-primary" onClick={onReset}>
           ← New Assessment
         </button>

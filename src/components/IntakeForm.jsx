@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-// ── Symptom data (display labels mapped to IDs) ──────────
-// Grouped by cancer type. Sex field used for filtering.
+// ── Symptom data — all 4 cancer types ───────────────────
 const SYMPTOM_DATA = {
   oral: {
     label: 'Oral / Mouth Cancer',
@@ -10,7 +9,7 @@ const SYMPTOM_DATA = {
       { id: 'OC-001', label: 'Mouth sore or ulcer not healing after 2 weeks' },
       { id: 'OC-002', label: 'White or red patch inside the mouth' },
       { id: 'OC-003', label: 'Lump or swelling in mouth, jaw, or cheek' },
-      { id: 'OC-004', label: "Cannot open mouth fully (restricted jaw movement)" },
+      { id: 'OC-004', label: 'Cannot open mouth fully (restricted jaw movement)' },
       { id: 'OC-005', label: 'Unexplained bleeding or numbness in the mouth or lip' },
       { id: 'OC-006', label: "Sore throat that won't go away (over 3 weeks)" },
       { id: 'OC-007', label: 'Teeth becoming loose without dental cause or injury' },
@@ -56,7 +55,7 @@ const SYMPTOM_DATA = {
     appliesTo: 'F',
     symptoms: [
       { id: 'BC-001', label: 'New lump, thickening, or hard mass in breast or armpit' },
-      { id: 'BC-002', label: 'One breast has changed in size or shape (unexplained)' },
+      { id: 'BC-002', label: 'One breast changed in size or shape (unexplained)' },
       { id: 'BC-003', label: 'Breast skin: puckering, dimpling, redness, or orange-peel texture' },
       { id: 'BC-004', label: 'Nipple recently turned inward or changed shape (new)' },
       { id: 'BC-005', label: 'Fluid from nipple (not breast milk) — especially blood-stained' },
@@ -71,31 +70,33 @@ const SYMPTOM_DATA = {
 
 // ── Risk factor options ──────────────────────────────────
 const RISK_FACTORS = [
-  { id: 'tobacco_chewing', label: 'Tobacco chewing (gutka, khaini, paan)', appliesTo: 'all' },
-  { id: 'smoking',         label: 'Smoking (cigarettes, bidi)',            appliesTo: 'all' },
-  { id: 'alcohol',         label: 'Heavy alcohol use',                     appliesTo: 'all' },
-  { id: 'paan',            label: 'Betel quid / paan / areca nut use',     appliesTo: 'all' },
-  { id: 'no_screening',    label: 'Never had a VIA test or Pap smear',     appliesTo: 'F'   },
-  { id: 'hpv',             label: 'Known HPV infection',                   appliesTo: 'F'   },
-  { id: 'hiv',             label: 'HIV positive or weakened immune system',appliesTo: 'all' },
-  { id: 'high_parity',     label: 'Given birth to 4 or more children',     appliesTo: 'F'   },
-  { id: 'none',            label: 'None of the above',                     appliesTo: 'all' },
+  { id: 'tobacco_chewing', label: 'Tobacco chewing (gutka, khaini, paan)',  appliesTo: 'all' },
+  { id: 'smoking',         label: 'Smoking (cigarettes, bidi)',             appliesTo: 'all' },
+  { id: 'alcohol',         label: 'Heavy alcohol use',                      appliesTo: 'all' },
+  { id: 'paan',            label: 'Betel quid / paan / areca nut use',      appliesTo: 'all' },
+  { id: 'biomass',         label: 'Cook indoors on wood/dung/coal fire (chulha)', appliesTo: 'all' },
+  { id: 'no_screening',    label: 'Never had a VIA test or Pap smear',      appliesTo: 'F'   },
+  { id: 'hpv',             label: 'Known HPV infection',                    appliesTo: 'F'   },
+  { id: 'hiv',             label: 'HIV positive or weakened immune system', appliesTo: 'all' },
+  { id: 'family_history',  label: 'Family history of cancer (parent/sibling)', appliesTo: 'all' },
+  { id: 'high_parity',     label: 'Given birth to 4 or more children',      appliesTo: 'F'   },
+  { id: 'none',            label: 'None of the above',                      appliesTo: 'all' },
 ]
 
-// Risk factor ID → display string for the engine
+// Risk factor ID → string passed to the engine
 const RISK_FACTOR_STRINGS = {
   tobacco_chewing: 'tobacco chewing',
   smoking:         'smoking',
   alcohol:         'alcohol use',
   paan:            'betel quid',
+  biomass:         'biomass smoke',
   no_screening:    'no prior screening',
   hpv:             'hpv infection',
   hiv:             'hiv',
+  family_history:  'family history',
   high_parity:     'high parity',
   none:            '',
 }
-
-const TOTAL_STEPS = 3
 
 export default function IntakeForm({ onSubmit }) {
   const [step,            setStep]            = useState(1)
@@ -103,16 +104,15 @@ export default function IntakeForm({ onSubmit }) {
   const [sex,             setSex]             = useState(null)
   const [riskFactors,     setRiskFactors]     = useState([])
   const [symptoms,        setSymptoms]        = useState([])
+  const [otherRiskFactor, setOtherRiskFactor] = useState('')
 
-  // ── Step validation ──────────────────────────────────
   const canProceed = () => {
     if (step === 1) return sex !== null
-    if (step === 2) return true // risk factors optional
+    if (step === 2) return true
     if (step === 3) return symptoms.length > 0
     return false
   }
 
-  // ── Handlers ─────────────────────────────────────────
   function toggleRiskFactor(id) {
     if (id === 'none') {
       setRiskFactors(riskFactors.includes('none') ? [] : ['none'])
@@ -137,15 +137,13 @@ export default function IntakeForm({ onSubmit }) {
       .map(id => RISK_FACTOR_STRINGS[id])
       .filter(Boolean)
 
-    onSubmit({
-      age,
-      sex,
-      reportedSymptoms:    symptoms,
-      reportedRiskFactors,
-    })
+    if (otherRiskFactor.trim()) {
+      reportedRiskFactors.push(otherRiskFactor.trim().toLowerCase())
+    }
+
+    onSubmit({ age, sex, reportedSymptoms: symptoms, reportedRiskFactors })
   }
 
-  // Age slider dynamic fill
   const rangePct = ((age - 18) / (80 - 18)) * 100
 
   return (
@@ -153,17 +151,12 @@ export default function IntakeForm({ onSubmit }) {
       {/* Step indicator */}
       <div className="step-indicator">
         {[1, 2, 3].map((s, i) => (
-          <>
-            <div
-              key={`dot-${s}`}
-              className={`step-dot ${step === s ? 'active' : step > s ? 'done' : ''}`}
-            >
+          <div key={s} style={{ display: 'flex', alignItems: 'center', flex: i < 2 ? 1 : 'none' }}>
+            <div className={`step-dot ${step === s ? 'active' : step > s ? 'done' : ''}`}>
               {step > s ? '✓' : s}
             </div>
-            {i < 2 && (
-              <div key={`line-${s}`} className={`step-line ${step > s ? 'done' : ''}`} />
-            )}
-          </>
+            {i < 2 && <div className={`step-line ${step > s ? 'done' : ''}`} />}
+          </div>
         ))}
       </div>
 
@@ -176,7 +169,6 @@ export default function IntakeForm({ onSubmit }) {
             Your answers are never stored or shared.
           </p>
 
-          {/* Age */}
           <div className="field-group">
             <label className="field-label">Your Age</label>
             <div className="age-input-row">
@@ -196,7 +188,6 @@ export default function IntakeForm({ onSubmit }) {
             </div>
           </div>
 
-          {/* Sex */}
           <div className="field-group" style={{ marginBottom: 0 }}>
             <label className="field-label">Biological Sex</label>
             <div className="sex-toggle">
@@ -257,17 +248,47 @@ export default function IntakeForm({ onSubmit }) {
             }
           </div>
 
+          {/* Other risk factor — free text */}
+          <div className="field-group" style={{ marginTop: '16px', marginBottom: 0 }}>
+            <label className="field-label">Other Risk Factor (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. family history of cancer, obesity..."
+              value={otherRiskFactor}
+              onChange={e => setOtherRiskFactor(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '13px 16px',
+                borderRadius: 'var(--radius-md)',
+                border: otherRiskFactor
+                  ? '1.5px solid var(--primary-mid)'
+                  : '1.5px solid var(--border)',
+                background: otherRiskFactor ? '#F4FAF6' : 'var(--surface)',
+                fontFamily: 'var(--font-body)',
+                fontSize: '14px',
+                color: 'var(--text)',
+                outline: 'none',
+                transition: 'border-color 0.2s, background 0.2s',
+              }}
+              onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+              onBlur={e => e.target.style.borderColor = otherRiskFactor
+                ? 'var(--primary-mid)' : 'var(--border)'}
+            />
+            <p style={{
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              marginTop: '6px',
+              paddingLeft: '2px',
+            }}>
+              Type anything not listed above. This will be included in your assessment.
+            </p>
+          </div>
+
           <div className="nav-row">
-            <button
-              className="btn btn-secondary"
-              onClick={() => setStep(1)}
-            >
+            <button className="btn btn-secondary" onClick={() => setStep(1)}>
               ← Back
             </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => setStep(3)}
-            >
+            <button className="btn btn-primary" onClick={() => setStep(3)}>
               Next: Symptoms →
             </button>
           </div>
@@ -308,10 +329,7 @@ export default function IntakeForm({ onSubmit }) {
           }
 
           <div className="nav-row">
-            <button
-              className="btn btn-secondary"
-              onClick={() => setStep(2)}
-            >
+            <button className="btn btn-secondary" onClick={() => setStep(2)}>
               ← Back
             </button>
             <button

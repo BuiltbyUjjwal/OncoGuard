@@ -1,37 +1,22 @@
 import { useState } from 'react'
 import IntakeForm from './components/IntakeForm'
 import ResultsScreen from './components/ResultsScreen'
-import HistoryDashboard from './components/HistoryDashboard'
 import { computeRiskProfile } from './riskEngine'
-import {
-  saveSession,
-  loadPreviousSession,
-  detectTrends,
-  loadAllSessions,
-} from './sessionStore'
 import './App.css'
 
 export default function App() {
-  const [screen,       setScreen]       = useState('form')
-  const [results,      setResults]      = useState(null)
-  const [trends,       setTrends]       = useState([])
-  const [sessionCount, setSessionCount] = useState(loadAllSessions().length)
+  const [screen,  setScreen]  = useState('form')
+  const [results, setResults] = useState(null)
 
   function handleFormSubmit(userProfile) {
-    const output   = computeRiskProfile(userProfile)
-    const previous = loadPreviousSession()
-    const detectedTrends = previous ? detectTrends(output, previous) : []
-    saveSession(output)
-    setSessionCount(loadAllSessions().length)
+    const output = computeRiskProfile(userProfile)
     setResults(output)
-    setTrends(detectedTrends)
     setScreen('results')
     window.scrollTo(0, 0)
   }
 
   function handleReset() {
     setResults(null)
-    setTrends([])
     setScreen('form')
     window.scrollTo(0, 0)
   }
@@ -44,61 +29,15 @@ export default function App() {
             <span className="logo-icon">◎</span>
             <span className="logo-text">OncoGuard</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span className="header-tagline">Early Cancer Screening Awareness</span>
-            {sessionCount > 0 && screen !== 'history' && (
-              <button
-                onClick={() => setScreen('history')}
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  borderRadius: '20px',
-                  color: '#fff',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  padding: '5px 12px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                📋 History
-                <span style={{
-                  background: 'var(--accent)',
-                  color: 'var(--primary)',
-                  borderRadius: '10px',
-                  padding: '1px 7px',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                }}>
-                  {sessionCount}
-                </span>
-              </button>
-            )}
-          </div>
+          <span className="header-tagline">Early Cancer Screening Awareness</span>
         </div>
       </header>
 
       <main className="app-main">
-        {screen === 'form' && (
-          <IntakeForm onSubmit={handleFormSubmit} />
-        )}
-        {screen === 'results' && (
-          <ResultsScreen
-            results={results}
-            trends={trends}
-            onReset={handleReset}
-            onViewHistory={() => setScreen('history')}
-          />
-        )}
-        {screen === 'history' && (
-          <HistoryDashboard
-            onClose={() => setScreen('form')}
-            onNewAssessment={() => setScreen('form')}
-          />
-        )}
+        {screen === 'form'
+          ? <IntakeForm onSubmit={handleFormSubmit} />
+          : <ResultsScreen results={results} onReset={handleReset} />
+        }
       </main>
 
       <footer className="app-footer">
