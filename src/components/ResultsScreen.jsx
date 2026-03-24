@@ -105,8 +105,44 @@ function ResultCard({ result }) {
   )
 }
 
+// ── Trend Alert Banner ───────────────────────────────────
+function TrendAlert({ trend }) {
+  const isHigh = trend.severity === 'high'
+  return (
+    <div style={{
+      background: isHigh ? '#FFF0EE' : '#FFF9EC',
+      border: `1.5px solid ${isHigh ? '#FCCFCF' : '#FFE0A3'}`,
+      borderLeft: `4px solid ${isHigh ? '#BA1A1A' : '#C46200'}`,
+      borderRadius: '10px',
+      padding: '13px 16px',
+      marginBottom: '10px',
+      display: 'flex',
+      gap: '10px',
+      alignItems: 'flex-start',
+      animation: 'slideIn 0.3s ease',
+    }}>
+      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>
+        {isHigh ? '⚠️' : '📈'}
+      </span>
+      <div>
+        <div style={{
+          fontSize: '12px', fontWeight: 700,
+          color: isHigh ? '#BA1A1A' : '#C46200',
+          letterSpacing: '0.04em', textTransform: 'uppercase',
+          marginBottom: '3px',
+        }}>
+          {isHigh ? 'Trend Warning' : 'Change Detected'}
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--text-mid)', lineHeight: 1.5 }}>
+          {trend.message}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main Results Screen ──────────────────────────────────
-export default function ResultsScreen({ results, onReset }) {
+export default function ResultsScreen({ results, trends = [], onReset, onViewHistory }) {
   if (!results) return null
 
   const { results: cancerResults, any_red_flag, user_profile } = results
@@ -151,6 +187,20 @@ export default function ResultsScreen({ results, onReset }) {
 
   return (
     <div className="fade-in">
+      {/* Trend alerts — only shown from second session onwards */}
+      {trends.length > 0 && (
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{
+            fontSize: '11px', fontWeight: 700,
+            color: 'var(--text-muted)', letterSpacing: '0.06em',
+            textTransform: 'uppercase', marginBottom: '10px',
+          }}>
+            ⟳ Compared to your last assessment
+          </div>
+          {trends.map((t, i) => <TrendAlert key={i} trend={t} />)}
+        </div>
+      )}
+
       {/* Hero section with score ring */}
       <div className="results-hero">
         <ScoreRing score={overallScore} colorClass={heroConfig.scoreColor} />
@@ -234,6 +284,9 @@ export default function ResultsScreen({ results, onReset }) {
 
       {/* Actions */}
       <div className="nav-row">
+        <button className="btn btn-secondary" onClick={onViewHistory}>
+          📋 View History
+        </button>
         <button className="btn btn-primary" onClick={onReset}>
           ← New Assessment
         </button>
