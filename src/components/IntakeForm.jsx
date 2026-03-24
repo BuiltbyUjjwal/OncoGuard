@@ -35,6 +35,38 @@ const SYMPTOM_DATA = {
       { id: 'CC-010', label: 'Persistent tiredness + unexplained weight loss (4+ weeks)' },
     ],
   },
+  lung: {
+    label: 'Lung Cancer',
+    appliesTo: 'all',
+    symptoms: [
+      { id: 'LC-001', label: 'Persistent cough lasting more than 3 weeks' },
+      { id: 'LC-002', label: 'Coughing up blood or blood-streaked mucus' },
+      { id: 'LC-003', label: 'Persistent chest pain, worse when breathing or coughing' },
+      { id: 'LC-004', label: 'New shortness of breath or difficulty breathing (2+ weeks)' },
+      { id: 'LC-005', label: 'Unexplained hoarseness or voice change (3+ weeks)' },
+      { id: 'LC-006', label: 'Unexplained weight loss of 5kg+ in 1–2 months' },
+      { id: 'LC-007', label: 'Recurring chest infections (pneumonia/bronchitis) coming back' },
+      { id: 'LC-008', label: 'Severe unexplained fatigue and loss of appetite (3+ weeks)' },
+      { id: 'LC-009', label: 'Bone pain in back, hips, or shoulders (worse at night)' },
+      { id: 'LC-010', label: 'Swelling of face, neck, or arms (no known cause)' },
+    ],
+  },
+  breast: {
+    label: 'Breast Cancer',
+    appliesTo: 'F',
+    symptoms: [
+      { id: 'BC-001', label: 'New lump, thickening, or hard mass in breast or armpit' },
+      { id: 'BC-002', label: 'One breast has changed in size or shape (unexplained)' },
+      { id: 'BC-003', label: 'Breast skin: puckering, dimpling, redness, or orange-peel texture' },
+      { id: 'BC-004', label: 'Nipple recently turned inward or changed shape (new)' },
+      { id: 'BC-005', label: 'Fluid from nipple (not breast milk) — especially blood-stained' },
+      { id: 'BC-006', label: 'Red, scaly, itchy, or crusty skin on or around the nipple (3+ weeks)' },
+      { id: 'BC-007', label: 'Swelling or lump in the armpit (underarm) — no infection' },
+      { id: 'BC-008', label: 'Persistent breast pain in one area that does not change (3+ weeks)' },
+      { id: 'BC-009', label: 'Entire breast red, swollen, and warm — not breastfeeding' },
+      { id: 'BC-010', label: 'Weight loss, back pain, or breathing difficulty — with known prior lump' },
+    ],
+  },
 }
 
 // ── Risk factor options ──────────────────────────────────
