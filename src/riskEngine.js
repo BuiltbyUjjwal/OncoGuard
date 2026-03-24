@@ -1,7 +1,7 @@
 // riskEngine.js
 // Drop this file into your project's /src folder
 
-import kb from "./symptoms_kb.json";
+import kb from "./symptoms_kbv2.json";
 
 /**
  * Main function — call this when the user submits the symptom form.
