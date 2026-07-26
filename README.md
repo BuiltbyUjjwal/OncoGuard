@@ -229,7 +229,7 @@ See [SETUP.md](./SETUP.md) for detailed instructions.
 
 | Document | Purpose |
 |----------|---------|
-| [Technical Report V3](./docs/OncoGuard_Technical_Report_V3_FINAL.md) | Complete technical specification |
+| [Technical Report](./docs/OncoGuard_Technical_Report.md) | Complete technical specification |
 | [Setup Guide](./SETUP.md) | Installation & environment setup |
 | [Contributing Guide](./CONTRIBUTING.md) | Team workflow & GitHub guidelines |
 | [Medical Safety](./docs/MEDICAL_SAFETY.md) | Safety considerations & disclaimers |
