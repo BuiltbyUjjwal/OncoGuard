@@ -1,0 +1,44 @@
+graph TD
+    Root["OncoGuard"]
+    Root --> Public["Public / Marketing"]
+    Public --> Landing["Landing Page"]
+    Public --> LoginPage["Login or Signup"]
+
+    Root --> Onboard["Onboarding (first run only)"]
+    Onboard --> OB1["Welcome"]
+    Onboard --> OB2["Language and Text Size"]
+    Onboard --> OB3["Consent and Disclaimer"]
+    Onboard --> OB4["Trust Intro (optional, skippable)"]
+
+    Root --> App["App Shell (authenticated)"]
+
+    App --> Dash["Dashboard"]
+    Dash --> DashA["Health Overview Cards"]
+    Dash --> DashB["Health Timeline (mini)"]
+    Dash --> DashC["Symptom Trend Charts"]
+    Dash --> DashD["Right Rail: Reminders, AI Insight, Nearby Center"]
+
+    App --> Assess["Assessment"]
+    Assess --> A1["Step 1: Basic Info"]
+    Assess --> A2["Step 2: Lifestyle"]
+    Assess --> A3["Step 3: Medical History"]
+    Assess --> A4["Step 4: Symptoms"]
+    Assess --> A5["Step 5: Review and Submit"]
+    Assess --> A6["Processing"]
+    Assess --> A7["AI Report / Result"]
+
+    App --> Timeline["Timeline (full history)"]
+
+    App --> Reports["Reports"]
+    Reports --> R1["Report List"]
+    Reports --> R2["Report Detail / Export"]
+
+    App --> Assistant["AI Assistant"]
+    App --> Hospitals["Hospital Finder"]
+
+    App --> Settings["Settings"]
+    Settings --> S1["Profile"]
+    Settings --> S2["Language"]
+    Settings --> S3["Privacy and Data"]
+    Settings --> S4["Notifications"]
+    Settings --> S5["Accessibility"]

@@ -1,0 +1,18 @@
+flowchart TD
+    A["Start Assessment"] --> B["Step 1: Basic Info - age, gender, location"]
+    B --> C["Step 2: Lifestyle - smoking, alcohol, diet, exercise"]
+    C --> D["Step 3: Medical History - family history, prior illness"]
+    D --> E["Step 4: Symptoms - CAUTION checklist, duration, severity"]
+    E --> F["Step 5: Review Summary"]
+    F -->|"Edit a step"| B
+    F -->|"Submit"| G{"Connected to internet?"}
+    G -->|"Yes"| H["Full Pipeline: Rule Engine then XGBoost+SHAP then RAG+LLM"]
+    G -->|"No"| I["Rule Engine only (offline scoring)"]
+    I --> J["Preliminary Result shown, marked will refine when online"]
+    H --> K["Full AI Report delivered"]
+    J -.->|"Reconnects"| H
+
+    B -.->|"autosaved locally on every field"| L[("Local Draft Storage")]
+    C -.-> L
+    D -.-> L
+    E -.-> L

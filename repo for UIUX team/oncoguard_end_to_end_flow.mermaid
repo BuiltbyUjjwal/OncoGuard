@@ -1,0 +1,29 @@
+flowchart TD
+    Start(["New Visitor"]) --> Landing["Landing Page"]
+    Landing -->|"Start Assessment"| AuthCheck{"Logged in?"}
+    AuthCheck -->|"No"| Login["Login or Signup (Phone OTP, Email, Google)"]
+    AuthCheck -->|"Yes"| OnboardCheck{"First time user?"}
+    Login --> OnboardCheck
+    OnboardCheck -->|"Yes"| Onboarding["Onboarding: Language, Consent, Trust Intro"]
+    OnboardCheck -->|"No"| Dashboard["Dashboard"]
+    Onboarding --> Dashboard
+
+    Dashboard -->|"Start Assessment"| Assessment["Assessment (Steps 1-5)"]
+    Assessment --> Processing["Processing (3-stage AI pipeline)"]
+    Processing --> Result["AI Report / Result Page"]
+
+    Result --> Dashboard
+    Result -->|"View history"| Timeline["Timeline"]
+    Result -->|"Export"| Reports["Reports"]
+    Result -->|"Ask a question"| Assistant["AI Assistant"]
+    Result -->|"Find care"| Hospitals["Hospital Finder"]
+
+    Dashboard --> Assistant
+    Dashboard --> Hospitals
+    Dashboard --> Reports
+    Dashboard --> Timeline
+    Dashboard --> Settings["Settings"]
+
+    Result -.->|"21-day escalation triggered"| Escalation["Priority Alert (calm styling)"]
+    Escalation -->|"Call or book screening"| Hospitals
+    Escalation --> Dashboard
